@@ -1,0 +1,2 @@
+numpy==1.26.2 # day 3, 4
+portion==2.4.1 # day 5
