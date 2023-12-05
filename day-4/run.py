@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def load(fpath: Path) -> list[str]:
-    return [len(np.intersect1d(*[np.array(list(map(int, h.split()))) for h in l.split(": ")[1].split(" | ")])) for l in fpath.read_text().splitlines()]
+    return [np.in1d(*[np.array(list(map(int, sa.split()))) for sa in l.split(": ")[1].split(" | ")]).sum() for l in fpath.read_text().splitlines()]
 
 
 def part1(fpath: Path):
@@ -11,9 +11,9 @@ def part1(fpath: Path):
 
 
 def part2(fpath: Path):
-    w = np.array([1 for _ in range(len(load(fpath)))])
+    w = np.ones(len(load(fpath)), dtype=int)
     for (i, c) in enumerate(load(fpath)):
-        w[i+1:i+1+c] += w[i]
+        w[i + 1:i + 1 + c] += w[i]
     return sum(w)
 
 

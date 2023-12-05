@@ -1,41 +1,24 @@
 import portion as P
 from dataclasses import dataclass
 from functools import reduce
-from portion.interval import Interval
 from pathlib import Path
+from portion.interval import Interval
 
 
-@dataclass
-class Range:
-    dest: int
-    source: int
-    size: int
-
-    def map_range(self, v: Interval) -> bool:
-        return P.closed(self.dest + (v.lower - self.source), self.dest + (v.upper - self.source))
-
-    def contains(self, v: int) -> bool:
-        return True if (self.source <= v < self.source + self.size) else False
+def load(fpath: Path) -> list[list[tuple[int, int, int]]]:
+    return ([int(i) for i in [b.split("\n") for b in fpath.read_text().split("\n\n")][0][0].split(": ")[1].split(" ")], [[[int(i) for i in s.split(" ")] for s in m[1:]] for m in [b.split("\n") for b in fpath.read_text().split("\n\n")][1:]])
 
 
-def load(fpath: Path) -> list[list[Range]]:
-    return ([int(i) for i in [b.split("\n") for b in fpath.read_text().split("\n\n")][0][0].split(": ")[1].split(" ")], [[Range(*[int(i) for i in s.split(" ")]) for s in m[1:]] for m in [b.split("\n") for b in fpath.read_text().split("\n\n")][1:]])
-
-
-def apply_map(m: list[Range], input_range: Interval) -> list[Interval]:
+def apply_map(m: list[tuple[int, int, int]], input_range: Interval) -> list[Interval]:
     output_range = P.empty()
     for r in m:
-        if not (ir := P.closed(r.source, r.source + r.size - 1)).overlaps(input_range):
-            continue
-        for subint in (ir & input_range):
+        for subint in (P.closed(r[1], r[1] + r[2] - 1) & input_range):
             input_range -= subint
-            output_range |= r.map_range(subint)
-        if input_range.empty:
-            return output_range
+            output_range |= P.closed(r[0] + (subint.lower - r[1]), r[0] + (subint.upper - r[1]))
     return output_range | input_range
 
 
-def find_min_location(maps: list[list[Range]], it: Interval) -> int:
+def find_min_location(maps: list[list[tuple[int, int, int]]], it: Interval) -> int:
     return it.lower if (len(maps) == 0) else find_min_location(maps[1:], apply_map(maps[0], it))
 
 
