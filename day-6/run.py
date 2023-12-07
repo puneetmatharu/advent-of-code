@@ -1,5 +1,5 @@
 import re
-from math import prod
+from math import floor, ceil, prod
 from pathlib import Path
 
 
@@ -8,11 +8,11 @@ def load(f: Path) -> list[str]:
 
 
 def part1(file: Path):
-    return prod([sum([i * (t - i) > d for i in range(1, t)]) for (t, d) in list(zip(*load(file)))])
+    return prod([floor((t + (t**2 - 4 * d)**0.5) / 2 - 1.0e-08) - ceil((t - (t**2 - 4 * d)**0.5) / 2 + 1.0e-08) + 1 for (t, d) in list(zip(*load(file)))])
 
 
 def part2(file: Path):
-    return prod([sum([i * (t - i) > d for i in range(1, t)]) for (t, d) in [(int("".join([str(i) for i in load(file)[0]])), int("".join([str(i) for i in load(file)[1]])))]])
+    return prod([floor((t + (t**2 - 4 * d)**0.5) / 2 - 1.0e-08) - ceil((t - (t**2 - 4 * d)**0.5) / 2 + 1.0e-08) + 1 for (t, d) in [(int("".join([str(i) for i in load(file)[0]])), int("".join([str(i) for i in load(file)[1]])))]])
 
 
 if __name__ == "__main__":
